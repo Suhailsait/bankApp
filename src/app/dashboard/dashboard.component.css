@@ -1,4 +1,11 @@
 .container{
-    height: 39%;
+    height: 50%;
     align-content: center;
+    }
+    .a1{
+        margin-right: 40%;
+    }
+    .a2{
+        margin-left: 40%;
+        margin-top: -24%;
     }
