@@ -33,6 +33,7 @@ export class DashboardComponent implements OnInit {
 
   user:any
   lDate:any
+  accno=""
 
   constructor(private ds:DataService,private fb:FormBuilder,private router:Router) { 
     this.user=ds.currentUser
@@ -83,5 +84,13 @@ else{
     localStorage.removeItem("currentUser")
     localStorage.removeItem("currentAcno")
     this.router.navigateByUrl("")
+  }
+
+  deleteAccount(){
+    this.accno=JSON.parse(localStorage.getItem("currentAcno")||'')
+  }
+
+  cancel(){
+    this.accno=""
   }
 }
