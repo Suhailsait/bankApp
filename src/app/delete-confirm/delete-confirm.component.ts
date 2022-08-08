@@ -10,6 +10,9 @@ export class DeleteConfirmComponent implements OnInit {
  @Input() item:string|undefined
 
  @Output() onCancel=new EventEmitter
+ //creating onDelete event - since it occuring in parent , so put it in @output
+ @Output() onDelete=new EventEmitter
+
 
   constructor() { }
 
@@ -18,6 +21,11 @@ export class DeleteConfirmComponent implements OnInit {
 
   cancel(){
     this.onCancel.emit()
+  }
+
+  delete(){
+    //emit the event ondelete with account to be deleted as the argument
+    this.onDelete.emit(this.item)
   }
 
 }

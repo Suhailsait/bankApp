@@ -11,9 +11,17 @@ export class TransactionComponent implements OnInit {
   acno=JSON.parse(localStorage.getItem("currentAcno")||'')
 
   constructor(private ds:DataService) {
-    this.transactions=this.ds.getTransaction(this.acno)
-    console.log(this.transactions);
-    
+    //asynchronous
+    this.ds.getTransaction(this.acno)
+    .subscribe((result:any)=>{
+      if(result){
+        this.transactions = result.transaction
+      }
+      },
+      result=>{
+        alert(result.error.message)
+      }
+      )    
    }
 
   ngOnInit(): void {

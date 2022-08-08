@@ -9,7 +9,7 @@
 <a routerLink="/transaction">View Transaction History</a>
 <button class="btn btn-danger" (click)="deleteAccount()" style="float:right; margin-right: 23px; margin-top: -1%;">Delete</button>
 
-<app-delete-confirm (onCancel)="cancel()" [item]="accno"></app-delete-confirm>
+<app-delete-confirm (onDelete)="onDelete($event)" (onCancel)="cancel()" [item]="accno"></app-delete-confirm>
 
 <!-- <app-animation-demo></app-animation-demo> -->
 

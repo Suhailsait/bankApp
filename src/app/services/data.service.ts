@@ -1,153 +1,122 @@
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+
+const options={
+  headers:new HttpHeaders()
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class DataService {
 
-  currentUser:any
-  currentAcno:any
-  //DATABASE
-  db: any = {
-    1000: { "acno": 1000, "username": "Neer", "password": 1000, "balance": 5000,transaction:[] },
-    1001: { "acno": 1001, "username": "Laisha", "password": 1001, "balance": 5000,transaction:[] },
-    1002: { "acno": 1002, "username": "Vypm", "password": 1002, "balance": 3000,transaction:[] }
+  currentUser: any
+  currentAcno: any
+  // //DATABASE
+  // db: any = {
+  //   1000: { "acno": 1000, "username": "Neer", "password": 1000, "balance": 5000, transaction: [] },
+  //   1001: { "acno": 1001, "username": "Laisha", "password": 1001, "balance": 5000, transaction: [] },
+  //   1002: { "acno": 1002, "username": "Vypm", "password": 1002, "balance": 3000, transaction: [] }
+  // }
+
+
+  constructor(private http: HttpClient) {
+    // this.getDetails()
   }
 
+  // //get details from local storage
+  // getDetails() {
+  //   if (localStorage.getItem("database")) {
+  //     this.db = JSON.parse(localStorage.getItem("database") || '')
+  //   }
+  //   if (localStorage.getItem("currentUser")) {
+  //     this.currentUser = JSON.parse(localStorage.getItem("currentUser") || '')
+  //   }
+  //   if (localStorage.getItem("currentAcno")) {
+  //     this.currentAcno = JSON.parse(localStorage.getItem("currentAcno") || '')
+  //   }
+  // }
 
-  constructor() { 
-    this.getDetails()
-  }
+  // //save details
+  // saveDetails() {
+  //   if (this.db) {
+  //     localStorage.setItem("database", JSON.stringify(this.db))
+  //   }
+  //   if (this.currentUser) {
+  //     localStorage.setItem("currentUser", JSON.stringify(this.currentUser))
+  //   }
+  //   if (this.currentAcno) {
+  //     localStorage.setItem("currentAcno", JSON.stringify(this.currentAcno))
+  //   }
+  // }
 
-  //get details from local storage
-  getDetails(){
-    if(localStorage.getItem("database")){
-      this.db=JSON.parse(localStorage.getItem("database")|| '')
+   //appending token to request header
+   getOptions(){
+    const token = localStorage.getItem('token')
+    let headers = new HttpHeaders()
+    if(token){
+      headers = headers.append('x-access-token',token)
+      options.headers = headers
     }
-    if(localStorage.getItem("currentUser")){
-      this.currentUser=JSON.parse(localStorage.getItem("currentUser")|| '')
-    }
-    if(localStorage.getItem("currentAcno")){
-      this.currentAcno=JSON.parse(localStorage.getItem("currentAcno")|| '')
-    }
-  }
-
-  //save details
-  saveDetails(){
-    if(this.db){
-      localStorage.setItem("database",JSON.stringify(this.db))
-    }
-    if(this.currentUser){
-      localStorage.setItem("currentUser",JSON.stringify(this.currentUser))
-    }
-    if(this.currentAcno){
-      localStorage.setItem("currentAcno",JSON.stringify(this.currentAcno))
-    }
+    return options
   }
 
   //login
-  login(acno:any,pswd:any) {
-
-    let db = this.db
-
-    if (acno in db) {
-      if (pswd == db[acno]["password"]) {
-        this.currentUser=db[acno]["username"]
-        this.currentAcno=acno
-        this.saveDetails()
-        return true
-      }
-      else {
-        alert("incorrect password")
-        return false
-      }
+  login(acno: any, pswd: any) {
+    const data = {
+      acno,
+      pswd
     }
-    else {
-      alert("user not exist!!!")
-      return false
-    }
+    //asynchronous
+    return this.http.post('http://localhost:3000/login', data)
   }
 
-//register
-register(username:any,acno:any,password:any){
-  let db=this.db
-
-
-if (acno in db) {
-  return false
-}
-else{
-  //insert in db
-  db[acno]={acno,
-     username, 
-     password, 
-     "balance": 0,
-     transaction:[]
+  //register
+  register(username: any, acno: any, password: any) {
+    const data = {
+      username,
+      acno,
+      password
     }
-    this.saveDetails()
-    return true
-}
-
-}
-
-deposit(acno:any,password:any,amt:any){
-  var amount=parseInt(amt)
-  let db=this.db
-  if (acno in db) {
-    
-    if(password==db[acno]["password"]){
-      db[acno]["balance"]+=amount
-      db[acno].transaction.push({
-        type:"CREDIT",
-        amount:amount
-      })
-      this.saveDetails()
-      return db[acno]["balance"]
-    }
-    else{
-      alert("Incorrect Password")
-      return false
-    }
+    //asynchronous
+    return this.http.post('http://localhost:3000/register', data)
   }
-  else{
-    alert("user doesnot exist...")
-    return false
-  }
-}
-withdraw(acno:any,password:any,amt:any){
-  var amount=parseInt(amt)
-  let db=this.db
-  if (acno in db) {
-    
-    if(password==db[acno]["password"]){
 
-      if(db[acno]["balance"]>amount){
-        db[acno]["balance"]-=amount
-        db[acno].transaction.push({
-          type:"DEBIT",
-          amount:amount
-        })
-        this.saveDetails()
-        return db[acno]["balance"]
-      }
-      else{
-        alert("Insufficient Balance")
-        return false
-      }
+ 
 
+  //deposit
+  deposit(acno: any, password: any, amt: any) {
+    const data = {
+      acno,
+      password,
+      amt
     }
-    else{
-      alert("Incorrect Password")
-      return false
+    return this.http.post('http://localhost:3000/deposit', data,
+    this.getOptions())
+  }
+
+  //withdraw
+  withdraw(acno: any, password: any, amt: any) {
+    var amount = parseInt(amt)
+    const data = {
+      acno,
+      password,
+      amt
     }
+    return this.http.post('http://localhost:3000/withdraw', data,
+    this.getOptions())
   }
-  else{
-    alert("user doesnot exist...")
-    return false
+  getTransaction(acno: any) {
+    const data={
+      acno
+    }
+    return this.http.post('http://localhost:3000/transaction', data,
+    this.getOptions())
+
   }
-}
-getTransaction(acno:any){
-return this.db[acno].transaction
-}
+
+  deleteAcc(acno:any){
+    return this.http.delete('http://localhost:3000/deleteAcc/'+acno,this.getOptions())
+  }
 }
 
